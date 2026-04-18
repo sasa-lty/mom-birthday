@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>妈妈生日快乐 ❤️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+        
+        .phase {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            z-index: 1;
+        }
+        
+        .phase.active {
+            display: flex;
+            opacity: 1;
+            z-index: 10;
+        }
+        
+        /* Phase 1: 惊喜开场 */
+        #phase1 {
+            background: linear-gradient(180deg, #0a1628 0%, #1a2744 50%, #0d1b2a 100%);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 100;
+        }
+        
+        .star-btn {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, #fff 0%, #ffd700 40%, #ffaa00 70%);
+            border-radius: 50%;
+            cursor: pointer;
+            animation: starPulse 2s ease-in-out infinite;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.9), 0 0 100px rgba(255, 215, 0, 0.5);
+            position: relative;
+            z-index: 100;
+            border: none;
+            outline: none;
+            font-size: 50px;
+            line-height: 120px;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            user-select: none;
+            padding: 0;
+            touch-action: manipulation;
+        }
+        
+        .star-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .star-btn:active {
+            transform: scale(0.95);
+        }
+        
+        @keyframes starPulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+        
+        .hint-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            margin-top: 30px;
+            letter-spacing: 2px;
+            animation: fadeInOut 3s ease-in-out infinite;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.9; }
+        }
+        
+        .balloon {
+            position: absolute;
+            width: 40px;
+            height: 50px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            opacity: 0;
+            animation: balloonFloat 8s ease-in-out forwards;
+        }
+        
+        .balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            width: 2px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.6);
+            transform: translateX(-50%);
+        }
+        
+        @keyframes balloonFloat {
+            0% { transform: translateY(100vh) rotate(-5deg); opacity: 0; }
+            10% { opacity: 0.9; }
+            90% { opacity: 0.9; }
+            100% { transform: translateY(-20vh) rotate(5deg); opacity: 0; }
+        }
+        
+        .birthday-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #fff;
+            opacity: 0;
+            z-index: 100;
+        }
+        
+        .birthday-text.show {
+            animation: textFadeIn 2s ease forwards;
+        }
+        
+        @keyframes textFadeIn {
+            to { opacity: 1; }
+        }
+        
+        .birthday-text h1 {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .birthday-text p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        /* Phase 2: 公主加冕 */
+        #phase2 {
+            background: linear-gradient(180deg, #f5e6d3 0%, #e8d4b8 50%, #d4a574 100%);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .curtain {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, #8b0000 0%, #a52a2a 50%, #8b0000 100%);
+            transition: transform 2s ease;
+            z-index: 5;
+        }
+        
+        .curtain.left {
+            left: 0;
+            transform-origin: left;
+        }
+        
+        .curtain.right {
+            right: 0;
+            transform-origin: right;
+        }
+        
+        .curtain.open.left {
+            transform: scaleX(0.1);
+        }
+        
+        .curtain.open.right {
+            transform: scaleX(0.1);
+        }
+        
+        .mom-photo {
+            position: absolute;
+            width: 200px;
+            height: 260px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 5px solid #d4a574;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            z-index: 8;
+        }
+        
+        .mom-photo.show {
+            animation: photoShow 3s ease forwards;
+        }
+        
+        @keyframes photoShow {
+            0% { opacity: 0; transform: scale(0.8); }
+            30% { opacity: 1; transform: scale(1); }
+            70% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.1); }
+        }
+        
+        .crown {
+            position: absolute;
+            font-size: 100px;
+            opacity: 0;
+            z-index: 10;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+        }
+        
+        .crown.show {
+            animation: crownFall 4s ease forwards;
+        }
+        
+        @keyframes crownFall {
+            0% { transform: translateY(-100vh) rotate(-10deg); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+        }
+        
+        .petal {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 50% 0 50% 50%;
+            opacity: 0.8;
+            animation: petalFall 4s ease-in-out forwards;
+        }
+        
+        @keyframes petalFall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+        
+        .princess-text {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: #5c4033;
+            opacity: 0;
+            z-index: 10;
+            max-width: 90%;
+        }
+        
+        .princess-text.show {
+            animation: textFadeIn 2s ease forwards;
+        }
+        
+        .princess-text h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            font-weight: 400;
+            letter-spacing: 2px;
+        }
+        
+        .princess-text p {
+            font-size: 14px;
+            line-height: 2;
+            color: #6b4423;
+        }
+        
+        /* Phase 3: 塔罗牌仪式 */
+        #phase3 {
+            background: linear-gradient(180deg, #f5f0e8 0%, #ebe5d9 100%);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .tarot-title {
+            position: absolute;
+            top: 8%;
+            color: #5c4033;
+            font-size: 18px;
+            letter-spacing: 3px;
+            opacity: 0;
+        }
+        
+        .tarot-title.show {
+            animation: textFadeIn 1s ease forwards;
+        }
+        
+        .tarot-container {
+            position: relative;
+            width: 100%;
+            height: 60%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .tarot-card {
+            position: absolute;
+            width: 100px;
+            height: 160px;
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 50%, #b8935f 100%);
+            border-radius: 10px;
+            border: 2px solid #a08060;
+            cursor: pointer;
+            transition: all 0.6s ease;
+            transform-style: preserve-3d;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tarot-card::before {
+            content: "✦";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .tarot-card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .tarot-card.center {
+            z-index: 100;
+            transform: scale(1.3) translateY(-20px);
+        }
+        
+        .tarot-card.revealed {
+            left: 5% !important;
+            transform: scale(0.7) rotateY(180deg);
+            opacity: 0.7;
+        }
+        
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        
+        .card-back {
+            background: linear-gradient(135deg, #2d1b4e 0%, #1a0f2e 100%);
+        }
+        
+        .card-front {
+            background: linear-gradient(135deg, #fff8f0 0%, #fff0e0 100%);
+            transform: rotateY(180deg);
+            border: 2px solid #d4a574;
+        }
+        
+        .card-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .card-name {
+            font-size: 12px;
+            color: #5c4033;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .card-scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        .card-scene.active {
+            display: flex;
+            opacity: 1;
+        }
+        
+        /* 玫瑰之约场景 */
+        #scene-rose {
+            background: linear-gradient(180deg, #ffe4e1 0%, #ffc0cb 50%, #ffb6c1 100%);
+        }
+        
+        .rose-bouquet {
+            font-size: 120px;
+            animation: roseBloom 2s ease forwards;
+        }
+        
+        @keyframes roseBloom {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* 星辰守护场景 */
+        #scene-star {
+            background: linear-gradient(180deg, #0a1628 0%, #1a2744 50%, #0d1b2a 100%);
+        }
+        
+        .shooting-star {
+            position: absolute;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #fff, transparent);
+            animation: shoot 2s ease-out forwards;
+        }
+        
+        @keyframes shoot {
+            0% { transform: translateX(-100vw) translateY(0); opacity: 1; }
+            100% { transform: translateX(100vw) translateY(50vh); opacity: 0; }
+        }
+        
+        /* 时光之钻场景 */
+        #scene-diamond {
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        
+        .vortex {
+            width: 200px;
+            height: 200px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: vortexSpin 3s linear infinite;
+        }
+        
+        @keyframes vortexSpin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        
+        .kiss-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: photoAppear 2s ease forwards;
+        }
+        
+        @keyframes photoAppear {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* 温暖港湾场景 */
+        #scene-home {
+            background: linear-gradient(180deg, #faf0e6 0%, #f5e6d3 50%, #e8d4b8 100%);
+        }
+        
+        .cat-photo {
+            width: 180px;
+            height: 180px;
+            border-radius: 15px;
+            object-fit: cover;
+            border: 4px solid #d4a574;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: catAppear 2s ease forwards;
+        }
+        
+        @keyframes catAppear {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* 圆满幸福场景 */
+        #scene-crystal {
+            background: linear-gradient(180deg, #e6e6fa 0%, #d8bfd8 50%, #dda0dd 100%);
+        }
+        
+        .crystal-ball {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(200, 200, 255, 0.6) 40%, rgba(150, 150, 200, 0.4) 70%, rgba(100, 100, 150, 0.3));
+            box-shadow: 0 0 40px rgba(200, 200, 255, 0.6), inset 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: crystalGlow 3s ease-in-out infinite;
+            cursor: pointer;
+        }
+        
+        @keyframes crystalGlow {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(200, 200, 255, 0.6); }
+            50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(200, 200, 255, 0.8); }
+        }
+        
+        .wish-input-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            animation: fadeIn 1s ease forwards;
+        }
+        
+        .wish-input-container.show {
+            display: flex;
+        }
+        
+        .wish-input {
+            width: 280px;
+            padding: 12px 15px;
+            border: 2px solid #9370db;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            text-align: center;
+        }
+        
+        .wish-btn {
+            padding: 10px 30px;
+            background: linear-gradient(135deg, #9370db, #ba55d3);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .wish-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .share-link {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            font-size: 12px;
+            color: #666;
+            max-width: 300px;
+            word-break: break-all;
+        }
+        
+        .scene-text {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: #5c4033;
+            max-width: 85%;
+            padding: 0 20px;
+        }
+        
+        .scene-text h3 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            font-weight: 400;
+        }
+        
+        .scene-text p {
+            font-size: 14px;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+        
+        .scene-text.light {
+            color: #fff;
+        }
+        
+        .scene-text.light p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .next-btn {
+            position: absolute;
+            bottom: 5%;
+            padding: 10px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 25px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            opacity: 0;
+            animation: fadeIn 1s ease 2s forwards;
+        }
+        
+        /* Phase 5: 永恒祝福 */
+        #phase5 {
+            background: linear-gradient(180deg, #0a1628 0%, #1a2744 50%, #2d1b4e 100%);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .blessing-text {
+            text-align: center;
+            color: #fff;
+            max-width: 85%;
+            z-index: 10;
+        }
+        
+        .blessing-text h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 300;
+            letter-spacing: 3px;
+        }
+        
+        .typewriter {
+            font-size: 16px;
+            line-height: 2.2;
+            min-height: 150px;
+        }
+        
+        .heart-final {
+            font-size: 80px;
+            color: #ff6b9d;
+            text-shadow: 0 0 30px rgba(255, 107, 157, 0.8);
+            animation: heartBeat 2s ease-in-out infinite;
+            display: none;
+            margin-bottom: 20px;
+        }
+        
+        .heart-final.show {
+            display: block;
+        }
+        
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .signature {
+            font-size: 16px;
+            color: #ffd700;
+            letter-spacing: 2px;
+            margin-top: 30px;
+            opacity: 0;
+        }
+        
+        .signature.show {
+            animation: fadeIn 2s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        /* Canvas层 */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 400px) {
+            .birthday-text h1 { font-size: 24px; }
+            .birthday-text p { font-size: 14px; }
+            .princess-text h2 { font-size: 18px; }
+            .princess-text p { font-size: 13px; }
+            .tarot-card { width: 80px; height: 130px; }
+            .scene-text h3 { font-size: 16px; }
+            .scene-text p { font-size: 13px; }
+            .typewriter { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Canvas粒子层 -->
+    <canvas id="particle-canvas"></canvas>
+    
+    <!-- Phase 1: 惊喜开场 -->
+    <div id="phase1" class="phase active">
+        <a href="javascript:void(0)" onclick="startSurprise()" id="starBtn" style="display:block;width:130px;height:130px;background:radial-gradient(circle,#fff 0%,#ffd700 40%,#ffaa00 70%);border-radius:50%;cursor:pointer;animation:starPulse 2s ease-in-out infinite;box-shadow:0 0 50px rgba(255,215,0,0.9),0 0 100px rgba(255,215,0,0.5);position:relative;z-index:1000;text-decoration:none;font-size:50px;line-height:130px;text-align:center;color:#fff;text-shadow:0 0 10px rgba(255,255,255,0.8);">✨</a>
+        <div class="hint-text">点击星星，开启惊喜 ✨</div>
+        <div class="birthday-text" id="birthdayText">
+            <h1>亲爱的妈妈，生日快乐 ❤️</h1>
+            <p>当你点亮这颗星星，<br>所有的惊喜与温柔，<br>都为你而来。</p>
+        </div>
+    </div>
+    
+    <!-- Phase 2: 公主加冕 -->
+    <div id="phase2" class="phase">
+        <div class="curtain left" id="curtainLeft"></div>
+        <div class="curtain right" id="curtainRight"></div>
+        <img src="妈妈照片.jpg" alt="妈妈" class="mom-photo" id="momPhoto">
+        <div class="crown" id="crown">👑</div>
+        <div class="princess-text" id="princessText">
+            <h2>今天，你是被全世界偏爱的公主</h2>
+            <p>没有工作的忙碌，没有生活的疲惫<br>
+            你不是谁的妻子，不是谁的妈妈<br>
+            只是被全世界偏爱的公主<br>
+            愿你被温柔以待，被爱意包围<br>
+            今天，所有的美好都只为你绽放</p>
+        </div>
+    </div>
+    
+    <!-- Phase 3: 塔罗牌仪式 -->
+    <div id="phase3" class="phase">
+        <div class="tarot-title" id="tarotTitle">请选择一张命运之牌</div>
+        <div class="tarot-container" id="tarotContainer"></div>
+        
+        <!-- 塔罗牌场景 -->
+        <div class="card-scene" id="scene-rose">
+            <div class="rose-bouquet">🌹</div>
+            <div class="scene-text">
+                <h3>玫瑰之约</h3>
+                <p>命运说，岁月从不败美人<br>
+                你眼底的温柔，心中的善良<br>
+                都是岁月最好的馈赠<br>
+                愿你永远明媚，永远年轻<br>
+                永远热爱生活</p>
+            </div>
+            <button class="next-btn" onclick="nextCard()">继续抽牌 ✨</button>
+        </div>
+        
+        <div class="card-scene" id="scene-star">
+            <div class="scene-text light">
+                <h3>星辰守护</h3>
+                <p>愿星辰为你加冕，为你守护<br>
+                愿你褪去所有疲惫，拥有无限活力<br>
+                无病无灾，安康常伴<br>
+                往后的每一天，都能精神饱满<br>
+                轻松自在，被健康与美好相拥</p>
+            </div>
+            <button class="next-btn" onclick="nextCard()">继续抽牌 ✨</button>
+        </div>
+        
+        <div class="card-scene" id="scene-diamond">
+            <div class="vortex" id="vortex"></div>
+            <img src="飞吻照片.png" alt="飞吻" class="kiss-photo" id="kissPhoto" style="display:none;">
+            <div class="scene-text light">
+                <h3>时光之钻</h3>
+                <p>上天感动于爱，于是打开时空之门<br>
+                把我的思念与祝福，跨越距离送到你身边<br>
+                无论我身在何处，我的爱永远陪着你<br>
+                岁岁年年，从未缺席</p>
+            </div>
+            <button class="next-btn" onclick="nextCard()">继续抽牌 ✨</button>
+        </div>
+        
+        <div class="card-scene" id="scene-home">
+            <img src="小猫照片.jpg" alt="猫咪" class="cat-photo" id="catPhoto">
+            <div class="scene-text">
+                <h3>温暖港湾</h3>
+                <p>公主的城堡，是我们的温暖小家<br>
+                这里有你最爱的猫咪，有最牵挂的家人<br>
+                有烟火气，有归属感<br>
+                愿这个小家，永远为你遮风挡雨<br>
+                愿你在这个港湾里，永远被宠爱，永远幸福美满</p>
+            </div>
+            <button class="next-btn" onclick="nextCard()">继续抽牌 ✨</button>
+        </div>
+        
+        <div class="card-scene" id="scene-crystal">
+            <div class="crystal-ball" id="crystalBall" onclick="showWishInput()"></div>
+            <div class="wish-input-container" id="wishInputContainer">
+                <input type="text" class="wish-input" id="wishInput" placeholder="写下你的心愿..." maxlength="50">
+                <button class="wish-btn" onclick="saveWish()">许下心愿 ✨</button>
+                <div class="share-link" id="shareLink" style="display:none;"></div>
+            </div>
+            <div class="scene-text" id="crystalText">
+                <h3>圆满幸福</h3>
+                <p>女巫婆婆的水晶球，藏着所有美好的期许<br>
+                点击水晶球，许下你的心愿<br>
+                你的心愿，自会在未来的特殊时刻实现</p>
+            </div>
+            <button class="next-btn" id="finalNextBtn" onclick="toPhase5()" style="display:none;">查看最终祝福 💕</button>
+        </div>
+    </div>
+    
+    <!-- Phase 5: 永恒祝福 -->
+    <div id="phase5" class="phase">
+        <div class="heart-final" id="heartFinal">💖</div>
+        <div class="blessing-text" id="blessingText">
+            <h2>亲爱的妈妈</h2>
+            <div class="typewriter" id="typewriter"></div>
+        </div>
+        <div class="signature" id="signature">永远爱您的小予 💕</div>
+    </div>
+
+    <script>
+        // 全局状态
+        let currentPhase = 1;
+        let audioContext = null;
+        let currentCardIndex = 0;
+        const tarotCards = [
+            { id: 'rose', name: '玫瑰之约', icon: '🌹', scene: 'scene-rose' },
+            { id: 'star', name: '星辰守护', icon: '⭐', scene: 'scene-star' },
+            { id: 'diamond', name: '时光之钻', icon: '💎', scene: 'scene-diamond' },
+            { id: 'home', name: '温暖港湾', icon: '🏠', scene: 'scene-home' },
+            { id: 'crystal', name: '圆满幸福', icon: '🔮', scene: 'scene-crystal' }
+        ];
+        
+        // 初始化音频
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        // 播放音符
+        function playNote(frequency, duration, type = 'sine') {
+            if (!audioContext) return;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        // 播放旋律
+        function playMelody(notes, interval = 300) {
+            notes.forEach((note, i) => {
+                setTimeout(() => playNote(note.freq, note.duration, note.type || 'sine'), i * interval);
+            });
+        }
+        
+        // Phase 1: 点击星星（全局函数，直接通过onclick调用）
+        function startSurprise() {
+            console.log('开始惊喜！');
+            
+            initAudio();
+            
+            // 播放欢快旋律
+            playMelody([
+                { freq: 523.25, duration: 0.3 },
+                { freq: 659.25, duration: 0.3 },
+                { freq: 783.99, duration: 0.4 },
+                { freq: 1046.50, duration: 0.6 }
+            ], 200);
+            
+            // 隐藏星星和提示
+            const starBtn = document.getElementById('starBtn');
+            const hintText = document.querySelector('.hint-text');
+            if (starBtn) starBtn.style.display = 'none';
+            if (hintText) hintText.style.display = 'none';
+            
+            // 创建气球
+            createBalloons();
+            
+            // 烟花效果
+            createFireworks();
+            
+            // 显示生日文字
+            setTimeout(() => {
+                const birthdayText = document.getElementById('birthdayText');
+                if (birthdayText) birthdayText.classList.add('show');
+            }, 2000);
+            
+            // 过渡到Phase 2
+            setTimeout(() => {
+                transitionToPhase(2);
+            }, 7000);
+        }
+        
+        // 页面加载完成后检查参数
+        window.onload = function() {
+            checkUrlParams();
+        };
+        
+        // 创建气球
+        function createBalloons() {
+            const colors = ['#ff6b9d', '#ffd93d', '#6bcf7f', '#4d96ff', '#ff8c42', '#c9b1ff'];
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const balloon = document.createElement('div');
+                    balloon.className = 'balloon';
+                    balloon.style.left = Math.random() * 90 + 5 + '%';
+                    balloon.style.background = `linear-gradient(135deg, ${colors[i % colors.length]} 0%, ${colors[(i + 1) % colors.length]} 100%)`;
+                    balloon.style.animationDelay = '0s';
+                    balloon.style.animationDuration = (6 + Math.random() * 4) + 's';
+                    document.getElementById('phase1').appendChild(balloon);
+                    
+                    setTimeout(() => balloon.remove(), 10000);
+                }, i * 100);
+            }
+        }
+        
+        // 烟花效果
+        function createFireworks() {
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const particles = [];
+            const colors = ['#ffd700', '#ff6b9d', '#6bcf7f', '#4d96ff', '#ff8c42'];
+            
+            function createExplosion(x, y) {
+                for (let i = 0; i < 30; i++) {
+                    particles.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 8,
+                        vy: (Math.random() - 0.5) * 8,
+                        life: 1,
+                        color: colors[Math.floor(Math.random() * colors.length)]
+                    });
+                }
+            }
+            
+            // 创建多个烟花
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    createExplosion(
+                        Math.random() * canvas.width,
+                        Math.random() * canvas.height * 0.6 + 100
+                    );
+                }, i * 600);
+            }
+            
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.1;
+                    p.life -= 0.02;
+                    
+                    if (p.life <= 0) {
+                        particles.splice(i, 1);
+                        continue;
+                    }
+                    
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                if (particles.length > 0) {
+                    requestAnimationFrame(animate);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            
+            animate();
+        }
+        
+        // 阶段过渡
+        function transitionToPhase(phase) {
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+            document.getElementById('phase' + phase).classList.add('active');
+            currentPhase = phase;
+            
+            if (phase === 2) {
+                startPhase2();
+            } else if (phase === 3) {
+                startPhase3();
+            } else if (phase === 5) {
+                startPhase5();
+            }
+        }
+        
+        // Phase 2: 公主加冕
+        function startPhase2() {
+            // 播放优雅旋律
+            playMelody([
+                { freq: 440, duration: 0.5, type: 'triangle' },
+                { freq: 554, duration: 0.5, type: 'triangle' },
+                { freq: 659, duration: 0.5, type: 'triangle' },
+                { freq: 880, duration: 1, type: 'triangle' }
+            ], 400);
+            
+            // 显示妈妈照片
+            setTimeout(() => {
+                document.getElementById('momPhoto').classList.add('show');
+            }, 500);
+            
+            // 拉开帷幔
+            setTimeout(() => {
+                document.getElementById('curtainLeft').classList.add('open');
+                document.getElementById('curtainRight').classList.add('open');
+            }, 3500);
+            
+            // 显示皇冠
+            setTimeout(() => {
+                document.getElementById('crown').classList.add('show');
+                // 竖琴音效
+                playMelody([
+                    { freq: 880, duration: 0.3, type: 'sine' },
+                    { freq: 1108, duration: 0.3, type: 'sine' },
+                    { freq: 1318, duration: 0.5, type: 'sine' }
+                ], 150);
+            }, 4500);
+            
+            // 花瓣飘落
+            setTimeout(() => {
+                createPetals();
+            }, 5500);
+            
+            // 显示文字
+            setTimeout(() => {
+                document.getElementById('princessText').classList.add('show');
+            }, 8000);
+            
+            // 过渡到Phase 3
+            setTimeout(() => {
+                transitionToPhase(3);
+            }, 14000);
+        }
+        
+        // 创建花瓣
+        function createPetals() {
+            const colors = ['#ffb6c1', '#ffc0cb', '#ffe4e1', '#fff0f5'];
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const petal = document.createElement('div');
+                    petal.className = 'petal';
+                    petal.style.left = Math.random() * 100 + '%';
+                    petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    petal.style.animationDuration = (3 + Math.random() * 2) + 's';
+                    document.getElementById('phase2').appendChild(petal);
+                    
+                    setTimeout(() => petal.remove(), 5000);
+                }, i * 100);
+            }
+        }
+        
+        // Phase 3: 塔罗牌仪式
+        function startPhase3() {
+            document.getElementById('tarotTitle').classList.add('show');
+            
+            // 创建塔罗牌
+            const container = document.getElementById('tarotContainer');
+            container.innerHTML = '';
+            
+            tarotCards.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'tarot-card';
+                cardEl.innerHTML = `
+                    <div class="card-back"></div>
+                    <div class="card-front">
+                        <div class="card-icon">${card.icon}</div>
+                        <div class="card-name">${card.name}</div>
+                    </div>
+                `;
+                
+                // 扇形排列
+                const angle = (index - 2) * 15;
+                const x = (index - 2) * 60;
+                cardEl.style.transform = `translateX(${x}px) rotate(${angle}deg)`;
+                cardEl.dataset.index = index;
+                
+                cardEl.addEventListener('click', () => revealCard(index));
+                container.appendChild(cardEl);
+            });
+            
+            // 播放神秘旋律
+            playMelody([
+                { freq: 523.25, duration: 0.8, type: 'sine' },
+                { freq: 659.25, duration: 0.8, type: 'sine' },
+                { freq: 783.99, duration: 0.8, type: 'sine' }
+            ], 600);
+        }
+        
+        // 翻开塔罗牌
+        function revealCard(index) {
+            if (index !== currentCardIndex) return;
+            
+            const cards = document.querySelectorAll('.tarot-card');
+            const card = cards[index];
+            
+            // 播放翻牌音效
+            playNote(880, 0.2, 'sine');
+            
+            // 动画：移到中央并翻转
+            card.style.transform = 'translateX(0) rotateY(180deg) scale(1.3)';
+            card.style.zIndex = '100';
+            card.classList.add('flipped');
+            
+            setTimeout(() => {
+                // 显示场景
+                const sceneId = tarotCards[index].scene;
+                document.getElementById(sceneId).classList.add('active');
+                
+                // 特殊场景处理
+                if (sceneId === 'scene-diamond') {
+                    setTimeout(() => {
+                        document.getElementById('vortex').style.display = 'none';
+                        document.getElementById('kissPhoto').style.display = 'block';
+                    }, 1500);
+                }
+            }, 600);
+        }
+        
+        // 下一张牌
+        function nextCard() {
+            // 隐藏当前场景
+            document.querySelectorAll('.card-scene').forEach(s => s.classList.remove('active'));
+            
+            // 标记当前牌为已翻开
+            const cards = document.querySelectorAll('.tarot-card');
+            cards[currentCardIndex].classList.add('revealed');
+            cards[currentCardIndex].style.transform = `translateX(${-150 + currentCardIndex * 30}px) scale(0.6) rotateY(180deg)`;
+            
+            currentCardIndex++;
+            
+            if (currentCardIndex >= tarotCards.length) {
+                // 所有牌抽完，进入Phase 5
+                setTimeout(() => transitionToPhase(5), 500);
+            } else {
+                // 播放音阶上升
+                const baseFreq = 523.25;
+                playNote(baseFreq * Math.pow(1.12, currentCardIndex), 0.3, 'sine');
+            }
+        }
+        
+        // 显示心愿输入
+        function showWishInput() {
+            document.getElementById('crystalBall').style.display = 'none';
+            document.getElementById('crystalText').style.display = 'none';
+            document.getElementById('wishInputContainer').classList.add('show');
+            playNote(1108, 0.5, 'sine');
+        }
+        
+        // 保存心愿
+        function saveWish() {
+            const wish = document.getElementById('wishInput').value.trim();
+            if (!wish) {
+                alert('请写下你的心愿~');
+                return;
+            }
+            
+            // 生成分享链接
+            const baseUrl = window.location.href.split('?')[0];
+            const shareUrl = baseUrl + '?wish=' + encodeURIComponent(wish) + '&from=mom';
+            
+            document.getElementById('shareLink').innerHTML = `
+                <div style="margin-bottom:8px;">✨ 心愿已保存！</div>
+                <div style="font-size:11px;color:#999;">分享链接（可复制保存）：</div>
+                <div style="margin-top:5px;padding:8px;background:#f5f5f5;border-radius:5px;">${shareUrl}</div>
+            `;
+            document.getElementById('shareLink').style.display = 'block';
+            document.getElementById('finalNextBtn').style.display = 'block';
+            
+            // 播放成功音效
+            playMelody([
+                { freq: 523.25, duration: 0.2 },
+                { freq: 659.25, duration: 0.2 },
+                { freq: 783.99, duration: 0.3 }
+            ], 150);
+        }
+        
+        // 进入Phase 5
+        function toPhase5() {
+            document.querySelectorAll('.card-scene').forEach(s => s.classList.remove('active'));
+            transitionToPhase(5);
+        }
+        
+        // Phase 5: 永恒祝福
+        function startPhase5() {
+            document.getElementById('heartFinal').classList.add('show');
+            
+            // 播放温柔旋律
+            const melody = [
+                { freq: 440, duration: 0.4 },
+                { freq: 554, duration: 0.4 },
+                { freq: 659, duration: 0.4 },
+                { freq: 783, duration: 0.4 },
+                { freq: 659, duration: 0.4 },
+                { freq: 554, duration: 0.4 },
+                { freq: 440, duration: 0.8 }
+            ];
+            
+            melody.forEach((note, i) => {
+                setTimeout(() => playNote(note.freq, note.duration, 'sine'), i * 400);
+            });
+            
+            // 打字机效果
+            const text = `谢谢你给了我生命
+谢谢你给了我温暖的家
+谢谢你教我勇敢和善良
+无论我在哪里
+你永远是我心里最重要的人
+生日快乐 🎂`;
+            
+            const typewriter = document.getElementById('typewriter');
+            let charIndex = 0;
+            
+            function typeChar() {
+                if (charIndex < text.length) {
+                    const char = text[charIndex];
+                    if (char === '\n') {
+                        typewriter.innerHTML += '<br>';
+                    } else {
+                        typewriter.innerHTML += char;
+                        // 打字音效
+                        if (charIndex % 3 === 0) {
+                            playNote(2000, 0.05, 'square');
+                        }
+                    }
+                    charIndex++;
+                    setTimeout(typeChar, 100);
+                } else {
+                    // 显示签名
+                    setTimeout(() => {
+                        document.getElementById('signature').classList.add('show');
+                    }, 1000);
+                }
+            }
+            
+            setTimeout(typeChar, 1000);
+            
+            // 创建星星背景
+            createStars();
+            
+            // 10秒后返回首页
+            setTimeout(() => {
+                location.reload();
+            }, 20000);
+        }
+        
+        // 创建星星
+        function createStars() {
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const stars = [];
+            for (let i = 0; i < 100; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 1,
+                    speed: Math.random() * 0.5 + 0.1,
+                    brightness: Math.random()
+                });
+            }
+            
+            function animateStars() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                stars.forEach(star => {
+                    star.y -= star.speed;
+                    star.brightness += (Math.random() - 0.5) * 0.1;
+                    star.brightness = Math.max(0.3, Math.min(1, star.brightness));
+                    
+                    if (star.y < 0) {
+                        star.y = canvas.height;
+                        star.x = Math.random() * canvas.width;
+                    }
+                    
+                    ctx.globalAlpha = star.brightness;
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                
+                if (currentPhase === 5) {
+                    requestAnimationFrame(animateStars);
+                }
+            }
+            
+            animateStars();
+        }
+        
+        // 检查URL参数（心愿分享）
+        function checkUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const wish = params.get('wish');
+            const from = params.get('from');
+            
+            if (wish && from === 'mom') {
+                // 显示心愿页面
+                setTimeout(() => {
+                    alert('妈妈的心愿：' + decodeURIComponent(wish) + '\n\n记得帮她实现哦！💕');
+                }, 1000);
+            }
+        }
+        
+        // 检查参数已在DOMContentLoaded中调用
+        
+        // 窗口大小改变时重置canvas
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('particle-canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
