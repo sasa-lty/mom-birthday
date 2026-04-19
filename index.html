@@ -419,20 +419,40 @@
         
         /* 星辰守护场景 */
         #scene-star {
-            background: linear-gradient(180deg, #0a1628 0%, #1a2744 50%, #0d1b2a 100%);
+            background: linear-gradient(180deg, #0a0a1a 0%, #0d1528 30%, #0a1628 60%, #1a2744 100%);
+            overflow: hidden;
+            position: relative;
         }
-        
-        .shooting-star {
+
+        /* 流星画布层 */
+        #shooting-canvas {
             position: absolute;
-            width: 100px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #fff, transparent);
-            animation: shoot 2s ease-out forwards;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .stars-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
         }
         
-        @keyframes shoot {
-            0% { transform: translateX(-100vw) translateY(0); opacity: 1; }
-            100% { transform: translateX(100vw) translateY(50vh); opacity: 0; }
+        .scene-star .scene-text {
+            z-index: 10;
+            margin-top: 30vh;
+        }
+        
+        .scene-star .next-btn {
+            margin-top: 15vh;
+            position: relative;
+            bottom: auto;
         }
         
         /* 时光之钻场景 */
@@ -492,6 +512,8 @@
         /* 圆满幸福场景 */
         #scene-crystal {
             background: linear-gradient(180deg, #e6e6fa 0%, #d8bfd8 50%, #dda0dd 100%);
+            flex-direction: column;
+            padding: 20px;
         }
         
         .crystal-ball {
@@ -502,11 +524,8 @@
             box-shadow: 0 0 40px rgba(200, 200, 255, 0.6), inset 0 0 30px rgba(255, 255, 255, 0.5);
             animation: crystalGlow 3s ease-in-out infinite;
             cursor: pointer;
-        }
-        
-        @keyframes crystalGlow {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(200, 200, 255, 0.6); }
-            50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(200, 200, 255, 0.8); }
+            flex-shrink: 0;
+            margin-top: 15vh;
         }
         
         .wish-input-container {
@@ -515,6 +534,9 @@
             align-items: center;
             gap: 15px;
             animation: fadeIn 1s ease forwards;
+            width: 100%;
+            max-width: 320px;
+            margin-top: 20px;
         }
         
         .wish-input-container.show {
@@ -522,17 +544,17 @@
         }
         
         .wish-input {
-            width: 280px;
+            width: 100%;
             padding: 12px 15px;
             border: 2px solid #9370db;
             border-radius: 25px;
-            font-size: 14px;
+            font-size: 16px;
             outline: none;
             text-align: center;
         }
         
         .wish-btn {
-            padding: 10px 30px;
+            padding: 12px 30px;
             background: linear-gradient(135deg, #9370db, #ba55d3);
             color: white;
             border: none;
@@ -553,23 +575,26 @@
             border-radius: 10px;
             font-size: 12px;
             color: #666;
-            max-width: 300px;
+            width: 100%;
             word-break: break-all;
+            text-align: center;
         }
         
         .scene-text {
-            position: absolute;
-            bottom: 15%;
-            left: 50%;
-            transform: translateX(-50%);
+            position: relative;
+            bottom: auto;
+            left: auto;
+            transform: none;
             text-align: center;
             color: #5c4033;
-            max-width: 85%;
-            padding: 0 20px;
+            max-width: 90%;
+            padding: 20px;
+            margin-top: auto;
+            margin-bottom: 10vh;
         }
         
         .scene-text h3 {
-            font-size: 18px;
+            font-size: 20px;
             margin-bottom: 12px;
             font-weight: 400;
         }
@@ -589,17 +614,35 @@
         }
         
         .next-btn {
-            position: absolute;
-            bottom: 5%;
-            padding: 10px 30px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            position: relative;
+            bottom: auto;
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 25px;
             color: #fff;
             font-size: 14px;
             cursor: pointer;
             opacity: 0;
             animation: fadeIn 1s ease 2s forwards;
+        }
+        
+        @media (max-width: 400px) {
+            .crystal-ball {
+                width: 120px;
+                height: 120px;
+                margin-top: 10vh;
+            }
+            .scene-text {
+                margin-bottom: 8vh;
+            }
+            .scene-text h3 {
+                font-size: 18px;
+            }
+            .scene-text p {
+                font-size: 13px;
+            }
         }
         
         /* Phase 5: 永恒祝福 */
@@ -738,6 +781,8 @@
         </div>
         
         <div class="card-scene" id="scene-star">
+            <canvas id="shooting-canvas"></canvas>
+            <div class="stars-bg" id="staticStarsBg"></div>
             <div class="scene-text light">
                 <h3>星辰守护</h3>
                 <p>愿星辰为你加冕，为你守护<br>
@@ -807,6 +852,7 @@
         let currentPhase = 1;
         let audioContext = null;
         let currentCardIndex = 0;
+        let backgroundMusic = null;
         const tarotCards = [
             { id: 'rose', name: '玫瑰之约', icon: '🌹', scene: 'scene-rose' },
             { id: 'star', name: '星辰守护', icon: '⭐', scene: 'scene-star' },
@@ -822,23 +868,259 @@
             }
         }
         
-        // 播放音符
-        function playNote(frequency, duration, type = 'sine') {
+        // 播放音符（高品质电子铃音色）
+        function playNote(frequency, duration, type = 'sine', volume = 0.3) {
             if (!audioContext) return;
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
             
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+            // 主振荡器
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.frequency.value = frequency;
+            osc.type = type;
             
-            oscillator.frequency.value = frequency;
-            oscillator.type = type;
+            // 铃音包络：快速起音 + 长衰减 + 延音
+            const now = audioContext.currentTime;
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(volume, now + 0.008);    // 8ms起音
+            gain.gain.exponentialRampToValueAtTime(volume * 0.6, now + 0.05); // 初始衰减
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
             
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            osc.start(now);
+            osc.stop(now + duration + 0.1);
             
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + duration);
+            // 泛音层1：八度上方（让铃声更明亮）
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            osc2.frequency.value = frequency * 2;
+            osc2.type = 'sine';
+            gain2.gain.setValueAtTime(0, now);
+            gain2.gain.linearRampToValueAtTime(volume * 0.25, now + 0.01);
+            gain2.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.5);
+            osc2.start(now);
+            osc2.stop(now + duration * 0.5 + 0.1);
+            
+            // 泛音层2：五度上方（丰富和声感）
+            const osc3 = audioContext.createOscillator();
+            const gain3 = audioContext.createGain();
+            osc3.connect(gain3);
+            gain3.connect(audioContext.destination);
+            osc3.frequency.value = frequency * 1.5;
+            osc3.type = 'sine';
+            gain3.gain.setValueAtTime(0, now);
+            gain3.gain.linearRampToValueAtTime(volume * 0.15, now + 0.015);
+            gain3.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.35);
+            osc3.start(now);
+            osc3.stop(now + duration * 0.35 + 0.1);
+        }
+        
+        // 播放带泛音的钢琴音色（高品质）
+        function playPianoNote(frequency, duration, volume = 0.25) {
+            if (!audioContext) return;
+            const now = audioContext.currentTime;
+            
+            // 基音 - 正弦波（主体）
+            const osc1 = audioContext.createOscillator();
+            const gain1 = audioContext.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.value = frequency;
+            osc1.connect(gain1);
+            gain1.connect(audioContext.destination);
+            // 钢琴包络：快速起音 + 中速衰减 + 长延音
+            gain1.gain.setValueAtTime(0, now);
+            gain1.gain.linearRampToValueAtTime(volume * 1.2, now + 0.005);
+            gain1.gain.exponentialRampToValueAtTime(volume * 0.4, now + duration * 0.3);
+            gain1.gain.exponentialRampToValueAtTime(0.001, now + duration);
+            osc1.start(now);
+            osc1.stop(now + duration + 0.05);
+
+            // 二次谐波（八度）- 让声音更饱满
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.value = frequency * 2;
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            gain2.gain.setValueAtTime(0, now);
+            gain2.gain.linearRampToValueAtTime(volume * 0.35, now + 0.003);
+            gain2.gain.exponentialRampToValueAtTime(volume * 0.08, now + duration * 0.25);
+            gain2.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.6);
+            osc2.start(now);
+            osc2.stop(now + duration * 0.6 + 0.03);
+
+            // 三次谐波（十二度上方）- 三角波增加泛音丰富度
+            const osc3 = audioContext.createOscillator();
+            const gain3 = audioContext.createGain();
+            osc3.type = 'triangle';
+            osc3.frequency.value = frequency * 3;
+            osc3.connect(gain3);
+            gain3.connect(audioContext.destination);
+            gain3.gain.setValueAtTime(0, now);
+            gain3.gain.linearRampToValueAtTime(volume * 0.12, now + 0.002);
+            gain3.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.35);
+            osc3.start(now);
+            osc3.stop(now + duration * 0.35 + 0.02);
+
+            // 四次谐波（双八度）- 高频泛音
+            const osc4 = audioContext.createOscillator();
+            const gain4 = audioContext.createGain();
+            osc4.type = 'sine';
+            osc4.frequency.value = frequency * 4;
+            osc4.connect(gain4);
+            gain4.connect(audioContext.destination);
+            gain4.gain.setValueAtTime(0, now);
+            gain4.gain.linearRampToValueAtTime(volume * 0.06, now + 0.002);
+            gain4.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.2);
+            osc4.start(now);
+            osc4.stop(now + duration * 0.2 + 0.02);
+
+            // 失谐层：让钢琴声音更自然（稍微偏移频率的第二个基音）
+            const oscDetune = audioContext.createOscillator();
+            const gainDetune = audioContext.createGain();
+            oscDetune.type = 'sine';
+            oscDetune.frequency.value = frequency * 1.003; // 轻微失谐
+            oscDetune.connect(gainDetune);
+            gainDetune.connect(audioContext.destination);
+            gainDetune.gain.setValueAtTime(0, now);
+            gainDetune.gain.linearRampToValueAtTime(volume * 0.15, now + 0.006);
+            gainDetune.gain.exponentialRampToValueAtTime(volume * 0.04, now + duration * 0.2);
+            gainDetune.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.55);
+            oscDetune.start(now);
+            oscDetune.stop(now + duration * 0.55 + 0.02);
+        }
+        
+        // 播放生日歌（电子铃风格）
+        function playBirthdaySong() {
+            if (!audioContext) return;
+            
+            // 生日歌旋律（C大调）- 每个音符持续时间和频率
+            const melody = [
+                // "Happy Birthday to You"
+                { freq: 264, duration: 0.4 },  // Do
+                { freq: 264, duration: 0.2 },  // Do
+                { freq: 297, duration: 0.6 },  // Re
+                { freq: 264, duration: 0.6 },  // Do
+                { freq: 352, duration: 0.6 },  // Fa
+                { freq: 330, duration: 1.0 },  // Mi
+                
+                // "Happy Birthday to You"
+                { freq: 264, duration: 0.4 },  // Do
+                { freq: 264, duration: 0.2 },  // Do
+                { freq: 297, duration: 0.6 },  // Re
+                { freq: 264, duration: 0.6 },  // Do
+                { freq: 396, duration: 0.6 },  // Sol
+                { freq: 352, duration: 1.0 },  // Fa
+                
+                // "Happy Birthday Dear..."
+                { freq: 264, duration: 0.4 },  // Do
+                { freq: 264, duration: 0.2 },  // Do
+                { freq: 528, duration: 0.6 },  // Do high
+                { freq: 440, duration: 0.6 },  // La
+                { freq: 352, duration: 0.5 },  // Fa
+                { freq: 297, duration: 0.4 },  // Re
+                { freq: 440, duration: 0.4 },  // La
+                
+                // "Happy Birthday to You"
+                { freq: 473, duration: 0.4 },  // Si
+                { freq: 440, duration: 0.4 },  // La
+                { freq: 352, duration: 0.5 },  // Fa
+                { freq: 396, duration: 0.4 },  // Sol
+                { freq: 352, duration: 0.6 },  // Fa
+            ];
+            
+            melody.forEach((note, i) => {
+                setTimeout(() => {
+                    // 电子铃音色：正弦波 + 快速衰减
+                    playNote(note.freq, note.duration, 'sine', 0.4);
+                }, i * 450);
+            });
+        }
+        
+        // 播放背景钢琴曲（循环 - 优美抒情风格）
+        function playBackgroundPiano() {
+            if (!audioContext || backgroundMusic) return;
+            
+            // 钢琴曲：右手旋律 + 左手分解和弦伴奏
+            // 调性：C大调转G大调再回C，温馨抒情
+            
+            const playChord = (notes, startTime, dur, vol = 0.12) => {
+                notes.forEach((freq, i) => {
+                    setTimeout(() => playPianoNote(freq, dur, vol), startTime + i * 40);
+                });
+            };
+            
+            // 右手旋律线（主旋律）
+            const melodyLine = [
+                // 乐句A - 温柔开场
+                { freq: 262, dur: 1.5, delay: 0 },       // C4
+                { freq: 294, dur: 0.8, delay: 1600 },     // D4
+                { freq: 330, dur: 0.8, delay: 2500 },     // E4
+                { freq: 392, dur: 2.0, delay: 3400 },     // G4 (长音)
+                { freq: 349, dur: 0.8, delay: 5500 },     // F4
+                { freq: 330, dur: 0.8, delay: 6400 },     // E4
+                { freq: 294, dur: 1.5, delay: 7300 },     // D4
+                { freq: 262, dur: 2.0, delay: 8900 },     // C4 (长音)
+                
+                // 乐句B - 上行发展
+                { freq: 330, dur: 0.8, delay: 11000 },    // E4
+                { freq: 392, dur: 0.8, delay: 11900 },    // G4
+                { freq: 440, dur: 0.6, delay: 12800 },    // A4
+                { freq: 392, dur: 1.5, delay: 13500 },    // G4
+                { freq: 330, dur: 1.0, delay: 15100 },    // E4
+                { freq: 294, dur: 2.5, delay: 16200 },    // D4
+                
+                // 乐句C - 高潮部分
+                { freq: 523, dur: 0.8, delay: 18800 },    // C5
+                { freq: 494, dur: 0.8, delay: 19700 },    // B4
+                { freq: 440, dur: 1.2, delay: 20600 },    // A4
+                { freq: 392, dur: 3.0, delay: 21900 },    // G4 (长音收尾)
+            ];
+            
+            // 左手分解和弦伴奏模式
+            const leftHandPattern = [
+                // 小节1: C大调
+                { notes: [131, 165, 196], start: 0, dur: 3.0 },      // C3-E3-G3
+                { notes: [175, 196, 262], start: 3200, dur: 2.8 },   // F3-G3-C4
+                // 小节2: Am
+                { notes: [220, 262, 330], start: 6000, dur: 3.0 },   // A3-C4-E4
+                { notes: [175, 220, 262], start: 9200, dur: 2.8 },   // F3-A3-C4
+                // 小节3: F
+                { notes: [175, 220, 262], start: 12000, dur: 3.0 },  // F3-A3-C4
+                { notes: [147, 175, 220], start: 15200, dur: 2.8 },  // D3-F3-A3
+                // 小节4: G → C
+                { notes: [196, 247, 294], start: 18000, dur: 3.0 },  // G3-B3-D4
+                { notes: [132, 165, 196, 262], start: 21200, dur: 3.5 }, // C3-E3-G3+C4(终止)
+            ];
+            
+            let totalDuration = 25000; // 整个循环约25秒
+            
+            function playLoop() {
+                if (!backgroundMusic) return;
+                
+                // 播放左手伴奏
+                leftHandPattern.forEach(chord => {
+                    playChord(chord.notes, chord.start, chord.dur, 0.10);
+                });
+                
+                // 播放右手旋律
+                melodyLine.forEach(note => {
+                    setTimeout(() => playPianoNote(note.freq, note.dur, 0.22), note.delay);
+                });
+                
+                // 循环播放
+                setTimeout(playLoop, totalDuration);
+            }
+            
+            backgroundMusic = true;
+            playLoop();
+        }
+        
+        // 停止背景音乐
+        function stopBackgroundMusic() {
+            backgroundMusic = false;
         }
         
         // 播放旋律
@@ -850,17 +1132,10 @@
         
         // Phase 1: 点击星星（全局函数，直接通过onclick调用）
         function startSurprise() {
-            console.log('开始惊喜！');
-            
             initAudio();
             
-            // 播放欢快旋律
-            playMelody([
-                { freq: 523.25, duration: 0.3 },
-                { freq: 659.25, duration: 0.3 },
-                { freq: 783.99, duration: 0.4 },
-                { freq: 1046.50, duration: 0.6 }
-            ], 200);
+            // 播放生日歌（电子铃风格）
+            playBirthdaySong();
             
             // 隐藏星星和提示
             const starBtn = document.getElementById('starBtn');
@@ -883,7 +1158,7 @@
             // 过渡到Phase 2
             setTimeout(() => {
                 transitionToPhase(2);
-            }, 7000);
+            }, 9000);
         }
         
         // 页面加载完成后检查参数
@@ -983,21 +1258,26 @@
             if (phase === 2) {
                 startPhase2();
             } else if (phase === 3) {
+                stopBackgroundMusic();
                 startPhase3();
             } else if (phase === 5) {
+                stopBackgroundMusic();
                 startPhase5();
             }
         }
         
         // Phase 2: 公主加冕
         function startPhase2() {
-            // 播放优雅旋律
+            // 播放背景钢琴曲
+            playBackgroundPiano();
+            
+            // 播放优雅和弦（竖琴/钢琴风格）
             playMelody([
-                { freq: 440, duration: 0.5, type: 'triangle' },
-                { freq: 554, duration: 0.5, type: 'triangle' },
-                { freq: 659, duration: 0.5, type: 'triangle' },
-                { freq: 880, duration: 1, type: 'triangle' }
-            ], 400);
+                { freq: 264, duration: 0.8, type: 'sine' },
+                { freq: 330, duration: 0.8, type: 'sine' },
+                { freq: 396, duration: 0.8, type: 'sine' },
+                { freq: 528, duration: 1.5, type: 'sine' }
+            ], 600);
             
             // 显示妈妈照片
             setTimeout(() => {
@@ -1013,11 +1293,11 @@
             // 显示皇冠
             setTimeout(() => {
                 document.getElementById('crown').classList.add('show');
-                // 竖琴音效
+                // 竖琴滑音效果
                 playMelody([
-                    { freq: 880, duration: 0.3, type: 'sine' },
-                    { freq: 1108, duration: 0.3, type: 'sine' },
-                    { freq: 1318, duration: 0.5, type: 'sine' }
+                    { freq: 528, duration: 0.4, type: 'sine' },
+                    { freq: 660, duration: 0.4, type: 'sine' },
+                    { freq: 792, duration: 0.8, type: 'sine' }
                 ], 150);
             }, 4500);
             
@@ -1058,6 +1338,9 @@
         function startPhase3() {
             document.getElementById('tarotTitle').classList.add('show');
             
+            // 播放背景钢琴曲
+            playBackgroundPiano();
+            
             // 创建塔罗牌
             const container = document.getElementById('tarotContainer');
             container.innerHTML = '';
@@ -1083,12 +1366,12 @@
                 container.appendChild(cardEl);
             });
             
-            // 播放神秘旋律
+            // 播放空灵琴音
             playMelody([
-                { freq: 523.25, duration: 0.8, type: 'sine' },
-                { freq: 659.25, duration: 0.8, type: 'sine' },
-                { freq: 783.99, duration: 0.8, type: 'sine' }
-            ], 600);
+                { freq: 330, duration: 1.2, type: 'sine' },
+                { freq: 396, duration: 1.2, type: 'sine' },
+                { freq: 528, duration: 1.2, type: 'sine' }
+            ], 800);
         }
         
         // 翻开塔罗牌
@@ -1098,8 +1381,8 @@
             const cards = document.querySelectorAll('.tarot-card');
             const card = cards[index];
             
-            // 播放翻牌音效
-            playNote(880, 0.2, 'sine');
+            // 播放翻牌音效（钢琴音）
+            playPianoNote(528, 0.3, 0.3);
             
             // 动画：移到中央并翻转
             card.style.transform = 'translateX(0) rotateY(180deg) scale(1.3)';
@@ -1110,6 +1393,11 @@
                 // 显示场景
                 const sceneId = tarotCards[index].scene;
                 document.getElementById(sceneId).classList.add('active');
+                
+                // 星辰守护场景：启动华丽流星雨
+                if (sceneId === 'scene-star') {
+                    startShootingStars();
+                }
                 
                 // 特殊场景处理
                 if (sceneId === 'scene-diamond') {
@@ -1123,6 +1411,9 @@
         
         // 下一张牌
         function nextCard() {
+            // 停止流星雨
+            stopShootingStars();
+            
             // 隐藏当前场景
             document.querySelectorAll('.card-scene').forEach(s => s.classList.remove('active'));
             
@@ -1137,9 +1428,9 @@
                 // 所有牌抽完，进入Phase 5
                 setTimeout(() => transitionToPhase(5), 500);
             } else {
-                // 播放音阶上升
-                const baseFreq = 523.25;
-                playNote(baseFreq * Math.pow(1.12, currentCardIndex), 0.3, 'sine');
+                // 播放音阶上升（钢琴音色）
+                const baseFreq = 330;
+                playPianoNote(baseFreq * Math.pow(1.12, currentCardIndex), 0.4, 0.25);
             }
         }
         
@@ -1189,19 +1480,19 @@
         function startPhase5() {
             document.getElementById('heartFinal').classList.add('show');
             
-            // 播放温柔旋律
+            // 播放钢琴旋律
             const melody = [
-                { freq: 440, duration: 0.4 },
-                { freq: 554, duration: 0.4 },
-                { freq: 659, duration: 0.4 },
-                { freq: 783, duration: 0.4 },
-                { freq: 659, duration: 0.4 },
-                { freq: 554, duration: 0.4 },
-                { freq: 440, duration: 0.8 }
+                { freq: 264, duration: 0.5 },
+                { freq: 330, duration: 0.5 },
+                { freq: 396, duration: 0.5 },
+                { freq: 528, duration: 0.5 },
+                { freq: 396, duration: 0.5 },
+                { freq: 330, duration: 0.5 },
+                { freq: 264, duration: 1.0 }
             ];
             
             melody.forEach((note, i) => {
-                setTimeout(() => playNote(note.freq, note.duration, 'sine'), i * 400);
+                setTimeout(() => playPianoNote(note.freq, note.duration, 0.3), i * 500);
             });
             
             // 打字机效果
@@ -1222,10 +1513,6 @@
                         typewriter.innerHTML += '<br>';
                     } else {
                         typewriter.innerHTML += char;
-                        // 打字音效
-                        if (charIndex % 3 === 0) {
-                            playNote(2000, 0.05, 'square');
-                        }
                     }
                     charIndex++;
                     setTimeout(typeChar, 100);
@@ -1292,6 +1579,330 @@
             }
             
             animateStars();
+        }
+
+        // ============================================================
+        //  ★★★ 《你的名字》风格华丽流星雨系统 ★★★
+        //  特点：发光头部 + 粒子尾迹 + 爆炸消散 + 多层次星空
+        // ============================================================
+        let shootAnimId = null;
+        let shootRunning = false;
+        
+        function startShootingStars() {
+            const canvas = document.getElementById('shooting-canvas');
+            if (!canvas) return;
+            canvas.width = canvas.parentElement.offsetWidth || window.innerWidth;
+            canvas.height = canvas.parentElement.offsetHeight || window.innerHeight;
+            
+            const ctx = canvas.getContext('2d');
+            const W = canvas.width;
+            const H = canvas.height;
+
+            // ====== 背景静态星星（多层次） ======
+            const bgStars = [];
+            for (let i = 0; i < 200; i++) {
+                bgStars.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    r: Math.random() * 1.5 + 0.3,
+                    alpha: Math.random() * 0.8 + 0.2,
+                    twinkleSpeed: Math.random() * 0.03 + 0.005,
+                    twinklePhase: Math.random() * Math.PI * 2
+                });
+            }
+
+            // ====== 流星对象池 ======
+            const meteors = [];
+            
+            // 创建一颗流星
+            function createMeteor(forceBig = false) {
+                // 流星从屏幕左上方不同位置出发
+                const startEdge = Math.random(); // 靠左边缘的分布
+                const x = -50 - Math.random() * 200;
+                const y = Math.random() * H * 0.6; // 上半部分随机
+                
+                // 速度和大小
+                const baseSpeed = forceBig ? (14 + Math.random() * 8) : (8 + Math.random() * 10);
+                const angle = (Math.random() * 15 + 25) * Math.PI / 180; // 25-40度角
+                
+                // 颜色：白色/淡蓝/淡金/淡紫
+                const colors = [
+                    { head: '#ffffff', tail: 'rgba(200,220,255,', glow: 'rgba(180,200,255,' },
+                    { head: '#fffaf0', tail: 'rgba(255,240,200,', glow: 'rgba(255,220,150,' },
+                    { head: '#f0f8ff', tail: 'rgba(200,220,255,', glow: 'rgba(180,210,255,' },
+                    { head: '#fffae6', tail: 'rgba(255,230,180,', glow: 'rgba(255,210,130,' }
+                ];
+                const colorScheme = colors[Math.floor(Math.random() * colors.length)];
+                
+                const meteor = {
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * baseSpeed,
+                    vy: Math.sin(angle) * baseSpeed,
+                    speed: baseSpeed,
+                    angle: angle,
+                    life: 1.0,
+                    maxLife: 1.0,
+                    size: forceBig ? (3.5 + Math.random() * 2) : (2 + Math.random() * 1.5),
+                    colorHead: colorScheme.head,
+                    colorTail: colorScheme.tail,
+                    colorGlow: colorScheme.glow,
+                    
+                    // 尾迹粒子
+                    trail: [],
+                    trailLength: Math.floor(baseSpeed * 10 + Math.random() * 30),
+                    
+                    // 爆炸粒子（流星消失时）
+                    exploded: false,
+                    explosionParticles: []
+                };
+                
+                return meteor;
+            }
+
+            // 更新流星状态
+            function updateMeteor(m) {
+                if (m.exploded) {
+                    // 更新爆炸粒子
+                    for (let i = m.explosionParticles.length - 1; i >= 0; i--) {
+                        const p = m.explosionParticles[i];
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.vy += 0.05; // 微重力
+                        p.life -= 0.025;
+                        p.size *= 0.97;
+                        if (p.life <= 0) {
+                            m.explosionParticles.splice(i, 1);
+                        }
+                    }
+                    return m.explosionParticles.length > 0;
+                }
+                
+                // 记录尾迹点（当前位置加入trail头部）
+                m.trail.unshift({ x: m.x, y: m.y, life: 1.0 });
+                if (m.trail.length > m.trailLength) {
+                    m.trail.pop();
+                }
+                
+                // 尾迹衰减
+                m.trail.forEach((t, idx) => {
+                    t.life -= 0.04;
+                });
+                
+                // 移动
+                m.x += m.vx;
+                m.y += m.vy;
+                
+                // 生命值随距离衰减
+                m.life -= 0.006;
+                
+                // 判断是否需要爆炸消失
+                if (m.life <= 0 || m.x > W + 100 || m.y > H + 100) {
+                    triggerExplosion(m);
+                }
+                
+                return true;
+            }
+            
+            // 触发爆炸效果
+            function triggerExplosion(m) {
+                m.exploded = true;
+                const particleCount = 20 + Math.floor(Math.random() * 20);
+                for (let i = 0; i < particleCount; i++) {
+                    const spreadAngle = Math.random() * Math.PI * 2;
+                    const speed = 1 + Math.random() * 4;
+                    m.explosionParticles.push({
+                        x: m.x,
+                        y: m.y,
+                        vx: Math.cos(spreadAngle) * speed,
+                        vy: Math.sin(spreadAngle) * speed,
+                        life: 1.0,
+                        size: 1 + Math.random() * 2.5
+                    });
+                }
+            }
+            
+            // 绘制单颗流星
+            function drawMeteor(ctx, m) {
+                if (m.exploded) {
+                    // 绘制爆炸粒子
+                    m.explosionParticles.forEach(p => {
+                        ctx.globalAlpha = p.life * 0.9;
+                        ctx.fillStyle = m.colorHead;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // 粒子微光晕
+                        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
+                        gradient.addColorStop(0, m.colorGlow + (p.life * 0.35) + ')');
+                        gradient.addColorStop(1, 'transparent');
+                        ctx.fillStyle = gradient;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                    return;
+                }
+                
+                const lifeRatio = m.life / m.maxLife;
+                const alpha = Math.min(1, lifeRatio * 1.5); // 前亮后暗
+                
+                // === 1. 绘制尾迹（渐变线条 + 粒子） ===
+                if (m.trail.length > 1) {
+                    // 主尾迹线（粗渐变线）
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    
+                    for (let i = 0; i < m.trail.length - 1; i++) {
+                        const t1 = m.trail[i];
+                        const t2 = m.trail[i + 1];
+                        const segAlpha = t1.life * alpha * 0.7;
+                        const segWidth = m.size * (1 - i / m.trail.length) * 1.2;
+                        
+                        if (segAlpha > 0.01 && segWidth > 0.1) {
+                            ctx.globalAlpha = segAlpha;
+                            ctx.strokeStyle = m.colorTail + segAlpha + ')';
+                            ctx.lineWidth = segWidth;
+                            ctx.beginPath();
+                            ctx.moveTo(t1.x, t1.y);
+                            ctx.lineTo(t2.x, t2.y);
+                            ctx.stroke();
+                        }
+                    }
+                    
+                    // 尾迹上的光点粒子
+                    m.trail.forEach((t, i) => {
+                        if (i % 3 !== 0) return; // 每隔几个画一个
+                        const dotAlpha = t.life * alpha * 0.5;
+                        if (dotAlpha > 0.05 && i < m.trail.length * 0.7) {
+                            ctx.globalAlpha = dotAlpha;
+                            ctx.fillStyle = m.colorHead;
+                            const dotSize = m.size * 0.4 * (1 - i / m.trail.length);
+                            ctx.beginPath();
+                            ctx.arc(t.x, t.y, dotSize, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    });
+                }
+                
+                // === 2. 绘制发光头部（核心亮点） ===
+                ctx.globalAlpha = alpha;
+                
+                // 外层大光晕
+                const glowRadius = m.size * 8;
+                const outerGlow = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, glowRadius);
+                outerGlow.addColorStop(0, m.colorGlow + (alpha * 0.5) + ')');
+                outerGlow.addColorStop(0.3, m.colorGlow + (alpha * 0.2) + ')');
+                outerGlow.addColorStop(1, 'transparent');
+                ctx.fillStyle = outerGlow;
+                ctx.beginPath();
+                ctx.arc(m.x, m.y, glowRadius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 中层光晕
+                const midRadius = m.size * 4;
+                const midGlow = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, midRadius);
+                midGlow.addColorStop(0, m.colorTail + (alpha * 0.8) + ')');
+                midGlow.addColorStop(0.5, m.colorTail + (alpha * 0.3) + ')');
+                midGlow.addColorStop(1, 'transparent');
+                ctx.fillStyle = midGlow;
+                ctx.beginPath();
+                ctx.arc(m.x, m.y, midRadius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 核心亮点（纯白）
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = m.colorHead;
+                ctx.shadowColor = m.colorHead;
+                ctx.shadowBlur = m.size * 3;
+                ctx.beginPath();
+                ctx.arc(m.x, m.y, m.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                // 最中心超亮核心
+                ctx.globalAlpha = Math.min(1, alpha * 1.2);
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(m.x, m.y, m.size * 0.45, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // 绘制背景星空
+            let bgTime = 0;
+            function drawBackgroundStars() {
+                bgTime += 1;
+                bgStars.forEach(s => {
+                    // 闪烁
+                    const twinkle = Math.sin(bgTime * s.twinkleSpeed + s.twinklePhase) * 0.3 + 0.7;
+                    ctx.globalAlpha = s.alpha * twinkle;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+            
+            // 主循环
+            let frameCount = 0;
+            shootRunning = true;
+            
+            function animate() {
+                if (!shootRunning) return;
+                
+                ctx.clearRect(0, 0, W, H);
+                
+                // 1. 绘制背景星空
+                drawBackgroundStars();
+                
+                // 2. 生成新流星（控制频率）
+                frameCount++;
+                if (frameCount % 40 === 0 && meteors.length < 8) {
+                    meteors.push(createMeteor(false));
+                }
+                // 偶尔生成大流星
+                if (frameCount % 180 === 0 && meteors.length < 6) {
+                    meteors.push(createMeteor(true));
+                }
+                // 开场时多发几颗
+                if (frameCount < 60 && frameCount % 12 === 0) {
+                    meteors.push(createMeteor(Math.random() > 0.6));
+                }
+                
+                // 3. 更新和绘制所有流星
+                for (let i = meteors.length - 1; i >= 0; i--) {
+                    const alive = updateMeteor(meteors[i]);
+                    drawMeteor(ctx, meteors[i]);
+                    if (!alive) {
+                        meteors.splice(i, 1);
+                    }
+                }
+                
+                shootAnimId = requestAnimationFrame(animate);
+            }
+            
+            // 启动！先立即发3颗开场流星
+            setTimeout(() => { if(shootRunning) meteors.push(createMeteor(true)); }, 100);
+            setTimeout(() => { if(shootRunning) meteors.push(createMeteor(false)); }, 400);
+            setTimeout(() => { if(shootRunning) meteors.push(createMeteor(false)); }, 800);
+            
+            animate();
+        }
+        
+        // 停止流星雨
+        function stopShootingStars() {
+            shootRunning = false;
+            if (shootAnimId) {
+                cancelAnimationFrame(shootAnimId);
+                shootAnimId = null;
+            }
+            // 清除canvas
+            const canvas = document.getElementById('shooting-canvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
         }
         
         // 检查URL参数（心愿分享）
